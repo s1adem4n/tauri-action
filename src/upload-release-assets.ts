@@ -36,7 +36,7 @@ export async function uploadAssets(
 
   for (const asset of assets) {
     const headers = {
-      'content-type': 'application/zip',
+      'content-type': 'application/octet-stream',
       'content-length': contentLength(asset.path),
     };
 
@@ -76,6 +76,9 @@ export async function uploadAssets(
 
     await retry(async () => {
       const fileData = fs.readFileSync(asset.path);
+      if (!Buffer.isBuffer(fileData)) {
+        throw new Error(`File data for ${assetName} is not a Buffer`);
+      }
       await github.rest.repos.uploadReleaseAsset({
         headers,
         name: assetName,
