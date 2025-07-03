@@ -67,21 +67,22 @@ export async function uploadVersionJSON(
     const path = isGitea
       ? '/repos/{owner}/{repo}/releases/{release_id}/assets/{asset_id}'
       : '/repos/{owner}/{repo}/releases/assets/{asset_id}';
-    const assetData = (
-      await github.request(`GET ${path}`, {
-        owner: owner,
-        repo: repo,
-        release_id: releaseId,
-        asset_id: asset.id,
-        headers: {
-          accept: 'application/octet-stream',
-        },
-      })
-    ).data as unknown as ArrayBuffer;
+    const response = await github.request(`GET ${path}`, {
+      owner: owner,
+      repo: repo,
+      release_id: releaseId,
+      asset_id: asset.id,
+      headers: {
+        accept: 'application/octet-stream',
+      },
+    });
+    console.log(response.status);
+    console.log(typeof response.data, response.data);
+    console.log(response.data.toString());
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     versionContent.platforms = JSON.parse(
-      Buffer.from(assetData).toString(),
+      Buffer.from(response.data).toString(),
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     ).platforms;
   }
