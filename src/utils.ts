@@ -432,7 +432,7 @@ export function deleteGiteaReleaseAsset(
   assetId: number,
 ) {
   return github.request(
-    'DELETE /repos/{owner}/{repo}/releases{release_id}/assets/{asset_id}',
+    'DELETE /repos/{owner}/{repo}/releases/{release_id}/assets/{asset_id}',
     {
       owner,
       repo,
