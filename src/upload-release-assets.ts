@@ -74,30 +74,35 @@ export async function uploadAssets(
 
     console.log(`Uploading ${assetName}...`);
 
-    try {
-      await retry(
-        () =>
-          github.rest.repos.uploadReleaseAsset({
-            headers,
-            name: assetName,
-            // https://github.com/tauri-apps/tauri-action/pull/45
-            // @ts-expect-error error TS2322: Type 'Buffer' is not assignable to type 'string'.
-            data: fs.createReadStream(asset.path),
-            owner: owner,
-            repo: repo,
-            release_id: releaseId,
-            baseUrl: githubBaseUrl,
-          }),
-        retryAttempts + 1,
-      );
-    } catch (error) {
-      // For some reason, Gitea upload succeeds but still throws the error:
-      // The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received an instance of Object
-      // This only happens when "replacing" a asset.
-      // TODO: find out a better way to fix this
-      if (!isGitea) {
-        throw error;
+    await retry(async () => {
+      try {
+        await github.rest.repos.uploadReleaseAsset({
+          headers,
+          name: assetName,
+          // https://github.com/tauri-apps/tauri-action/pull/45
+          // @ts-expect-error error TS2322: Type 'Buffer' is not assignable to type 'string'.
+          data: fs.createReadStream(asset.path),
+          owner: owner,
+          repo: repo,
+          release_id: releaseId,
+          baseUrl: githubBaseUrl,
+        });
+      } catch (error) {
+        // For some reason, Gitea upload succeeds but still throws the error:
+        // The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received an instance of Object
+        // This only happens when "replacing" a asset.
+        // TODO: find out a better way to fix this
+        if (!isGitea) {
+          throw error;
+        } else {
+          // Gitea upload succeeds but still throws the error
+          // The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received an instance of Object
+          console.warn(
+            'Gitea upload succeeded but threw an error. This is expected.',
+            error instanceof Error ? error.message : String(error),
+          );
+        }
       }
-    }
+    }, retryAttempts + 1);
   }
 }
