@@ -27,6 +27,7 @@ export async function uploadAssets(
       repo: repo,
       release_id: releaseId,
       per_page: 100,
+      baseUrl: githubBaseUrl,
     })
   ).data;
 
@@ -53,6 +54,20 @@ export async function uploadAssets(
     );
     if (existingAsset) {
       console.log(`Deleting existing ${assetName}...`);
+      console.log(JSON.stringify(existingAsset, null, 2));
+      console.log(
+        JSON.stringify(
+          {
+            owner,
+            repo,
+            asset_id: existingAsset.id,
+            baseUrl: githubBaseUrl,
+            headers,
+          },
+          null,
+          2,
+        ),
+      );
       await github.rest.repos.deleteReleaseAsset({
         owner: owner,
         repo: repo,
