@@ -438,9 +438,6 @@ export function deleteGiteaReleaseAsset(
       repo,
       release_id: releaseId,
       asset_id: assetId,
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-      },
     },
   );
 }

@@ -52,6 +52,24 @@ export async function uploadAssets(
           .normalize('NFD')
           .replace(/[\u0300-\u036f]/g, ''),
     );
+
+    console.log(
+      JSON.stringify(
+        {
+          asset: existingAsset,
+          owner: owner,
+          repo: repo,
+          releaseId: releaseId,
+          isGitea: isGitea,
+          githubBaseUrl: githubBaseUrl,
+          headers: headers,
+          assetName: assetName,
+        },
+        null,
+        2,
+      ),
+    );
+
     if (existingAsset) {
       console.log(`Deleting existing ${assetName}...`);
       if (isGitea) {
